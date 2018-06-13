@@ -1,0 +1,108 @@
+﻿@model TheRacketPlaylistGenerator.ViewModels.PlaylistViewModel
+
+@section Styles {
+    <link rel="stylesheet" href="https://dbushell.com/Pikaday/css/pikaday.css" />
+}
+
+<div class="jumbotron">
+    <h1>Playlist Generator</h1>
+    <p class="lead">Search for and display playlists for a show. Just pick a date and a time</p>
+    <p><a href="http://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
+</div>
+
+<div class="container">
+    <div class="row">
+        <h2>Getting started</h2>
+        <div class="form-inline">
+            <div class="form-group">
+                <label class="sr-only" for="datePicker">Show Date</label>
+                <input type="datetime" class="form-control" id="datepicker" placeholder="Date" value="@Model.SelectedDate.Value.ToString("dd/MM/yyyy")"/>
+            </div>
+
+            <div class="form-group">
+                <label class="sr-only" for="dateInput">Show</label>
+                @Html.DropDownListFor(m => m.SelectedShowTime, new SelectList(Model.ShowTimes, "Key", "Value"), new { @class = "form-control", id = "show" })
+            </div>
+
+            <button id="generate" type="submit" class="btn btn-primary">Generate</button>
+            @Html.HiddenFor(m => m.SelectedShowTime)
+        </div>
+    </div>
+    <div class="row">
+        <table id="playlist" class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Artwork</th>
+                    <th>Duration</th>
+                    <th>Artist</th>
+                    <th>Title</th>
+                    <th>Album</th>
+                    <th>Links</th>
+                </tr>
+            </thead>
+            @if (Model != null && Model.PlaylistDetails.Count > 0)
+            {
+                foreach (var item in Model.PlaylistDetails)
+                {
+                    
+                    var spotifyUrl = string.Format(
+                        "https://play.spotify.com/search/{0} {1}",
+                        @Uri.EscapeDataString("artist:" + @item.Artist),
+                        @Uri.EscapeDataString(" track:" + @item.SongTitle)
+                    );
+                    
+                    <tr>
+                        <td><img src="@item.AlbumCoverUrl" width="100" height="100" alt="album cover" /></td>
+                        <td>@item.Duration</td>
+                        <td>@item.Artist</td>
+                        <td>@item.SongTitle</td>
+                        <td>@item.AlbumName</td>
+                        <td><a href="https://www.youtube.com/results?search_query=@item.Artist @item.SongTitle">YouTube</a> | <a href="@spotifyUrl">Spotify</a></td>
+                    </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>Nothing to see here</tr>
+                    }
+    </table>
+
+    </div>
+</div>
+
+@section Scripts {
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            var picker = new Pikaday(
+            {
+                field: document.getElementById('datepicker'),
+                format: 'DD/MM/YYYY'
+            });
+
+            //set the dropdown value based on text
+            var selectedShow = $("#SelectedShowTime").val();
+            var selectedShowOption = "option:contains('" + selectedShow + "')";
+            console.log(selectedShow);
+            $("#show").find(selectedShowOption).each(function () {
+                if ($(this).text() === selectedShow ) {
+                    $(this).attr("selected", "selected");
+                }
+            });
+
+            $("#generate").on("click", function () {
+                var show = $("#show").val();
+                var showName = $("#show option:selected").text();
+                var formattedDate = moment($("#datepicker").val(), "DD/MM/YYYY").format("YYYY-MM-DD");
+
+                var showDate = encodeURIComponent(formattedDate);
+                var showTime = encodeURIComponent(show);
+
+                var url = "/Playlist/GeneratePlaylist?showDate=" + showDate + "&showTime=" + showTime + "&showName=" + showName;
+
+                $(location).attr("href", url);
+            });
+        });
+    </script>
+}

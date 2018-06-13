@@ -1,5 +1,4 @@
-﻿using System.Web;
-using System.Web.Optimization;
+﻿using System.Web.Optimization;
 
 namespace TheRacketPlaylistGenerator
 {
@@ -10,6 +9,10 @@ namespace TheRacketPlaylistGenerator
         {
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
                         "~/Scripts/jquery-{version}.js"));
+
+            bundles.Add(new ScriptBundle("~/bundles/lib").Include(
+                        "~/Scripts/moment.js",
+                        "~/Scripts/pikaday.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
                         "~/Scripts/jquery.validate*"));
