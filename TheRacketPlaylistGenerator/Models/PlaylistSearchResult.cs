@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace TheRacketPlaylistGenerator.Models
 {
@@ -32,6 +33,7 @@ namespace TheRacketPlaylistGenerator.Models
         public string Arid { get; set; }
         public string Title { get; set; }
         public long Duration { get; set; }
+        [JsonConverter(typeof(Helpers.SingleValueArrayConverter<Artist>))]
         public List<Artist> Artists { get; set; }
         public List<Release> Releases { get; set; }
         public List<object> Artwork { get; set; }
